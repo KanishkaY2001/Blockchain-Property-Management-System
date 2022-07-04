@@ -1,2 +1,2 @@
-# COMP6452---Blockchain-Boogaloo
+# COMP6452 Blockchain-Boogaloo
 Project Interactive Codebase
