@@ -8,6 +8,7 @@ Project Interactive Codebase
 - truffle
 
 ### develop Commands:
+- truffle compile
 - truffle develop
 
 ### Testing commands:
