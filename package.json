@@ -1,0 +1,25 @@
+{
+  "name": "comp6452-blockchain-boogaloo",
+  "version": "1.0.0",
+  "description": "Comp6452 Group Project",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orangeNspice16/COMP6452-Blockchain-Boogaloo.git"
+  },
+  "author": "blockchain boogaloo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/orangeNspice16/COMP6452-Blockchain-Boogaloo/issues"
+  },
+  "homepage": "https://github.com/orangeNspice16/COMP6452-Blockchain-Boogaloo#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.7.0"
+  }
+}
