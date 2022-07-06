@@ -32,16 +32,12 @@ contract PropertyToken is ERC721URIStorage {
     }
 
 
-    function DigitiseProperty(address owner) external returns(uint256) {
+    function DigitiseProperty(address owner, uint256 newItemId) external returns(uint256) {
         require(msg.sender == commonwealth, "Not Commonwealth");
-
-        // using the _mint functionality offered by ERC721 standard
-        // Make new NFT to represent property, with tokenURI being a base64 JSON (off-chain stuff)
-
-        uint256 newItemId = oracle.GetPropertyCount();
-        _mint(owner, newItemId);
-
+        
+        // mint NFT to represent property
         // GetPropertyInfo will return the base64 JSON URI
+        _mint(owner, newItemId);
         _setTokenURI(newItemId, oracle.GetPropertyInfo(newItemId));
         return newItemId;
     }

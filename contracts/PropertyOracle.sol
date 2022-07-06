@@ -5,16 +5,18 @@ contract PropertyOracle {
 
     // Oracle Data
     address public commonwealth;
-    mapping (address => bytes) private publicSigns; // map of all public signatures
+    modifier authorized() {
+            require(msg.sender == commonwealth, "Not Authorized");
+            _;
+    }
+
+    // User Data
+    mapping (address => bytes) private publicSign; // map of all public signatures
+
 
     // Total property count
     uint256 public propertyCount;
     mapping (uint256 => string) private propertyInfo; // map of all property info (tokenURI)
-
-    modifier authorized() {
-        require(msg.sender == commonwealth, "Not Authorized");
-        _;
-    }
 
     constructor(
         address _cw
@@ -23,11 +25,12 @@ contract PropertyOracle {
     }
 
     function AddPublicSign(address userAddr, bytes memory signature) authorized external {
-        publicSigns[userAddr] = signature;
+        publicSign[userAddr] = signature;
     }
 
-    function AddPropertyInfo(string memory encodedInfo) authorized external {
+    function AddPropertyInfo(string memory encodedInfo) authorized external returns(uint256) {
         propertyInfo[++propertyCount] = encodedInfo;
+        return propertyCount;
     }
 
     function UpdatePropertyInfo(uint256 propId, string memory encodedInfo) authorized external {
@@ -35,7 +38,7 @@ contract PropertyOracle {
     }
 
     function GetPublicSign(address userAddr) external view returns(bytes memory sign) {
-        return publicSigns[userAddr];
+        return publicSign[userAddr];
     }
 
     function GetPropertyInfo(uint256 propertyId) external view returns(string memory info) {

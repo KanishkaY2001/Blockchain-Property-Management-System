@@ -7,9 +7,14 @@ Project Interactive Codebase
 - ganache
 - truffle
 
+### Node Modules
+- web3
+- ethers
+
 ### develop Commands:
-- truffle compile
-- truffle develop
+- 1) truffle compile
+- 2) truffle develop
+- 3) truffle migrate
 
 ### Testing commands:
 - truffle test

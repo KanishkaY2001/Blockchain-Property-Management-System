@@ -1888,7 +1888,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.8",
-  "updatedAt": "2022-07-05T08:24:37.104Z",
+  "updatedAt": "2022-07-06T00:42:41.352Z",
   "devdoc": {
     "details": "ERC721 token with storage based token URI management.",
     "kind": "dev",
