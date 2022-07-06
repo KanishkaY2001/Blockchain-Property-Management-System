@@ -36,7 +36,7 @@ if (checkInvestorValidity(investorSignature, investorAddress)) CreateSignature(i
 
 
 //  // Step 0) provide Documents...
-const applicationForm = async (ethAddr, documents) => {
+const ApplicationForm = async (ethAddr, documents) => {
 
     // TEMPORARY SETTINGS:
     const accs = await web3.eth.getAccounts();
@@ -84,6 +84,7 @@ function EncodePropertyInfo(property) {
     }
     return btoa(propInfo);
 }
+module.exports.EncodePropertyInfo = EncodePropertyInfo;
 
 
 function CreateSignature(ethAddress) {
@@ -99,5 +100,6 @@ function CreateSignature(ethAddress) {
     }
     return verificationInfo;
 }
+module.exports.CreateSignature = CreateSignature;
 
-applicationForm("", "");
+//ApplicationForm("", "");

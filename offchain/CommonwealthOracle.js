@@ -35,8 +35,7 @@ const InjectPropertyInfo = async (ethAddr, prop) => {
     );
 
     // Inject prop info into on-chain oracle
-    const pid = await oracle.methods.AddPropertyInfo(prop).call({from: accs[0]});
+    var pid = await oracle.methods.AddPropertyInfo(prop).call({from: accs[0]});
     await token.methods.DigitiseProperty(ethAddr, pid).call({from: accs[0]});
-    
 }
 module.exports.InjectPropertyInfo = InjectPropertyInfo;

@@ -13,9 +13,8 @@ contract PropertyOracle {
     // User Data
     mapping (address => bytes) private publicSign; // map of all public signatures
 
-
     // Total property count
-    uint256 public propertyCount;
+    uint256 private propertyCount;
     mapping (uint256 => string) private propertyInfo; // map of all property info (tokenURI)
 
     constructor(
