@@ -12,9 +12,9 @@ Project Interactive Codebase
 - ethers
 
 ### develop Commands:
-- 1) truffle compile
-- 2) truffle develop
-- 3) truffle migrate
+1) truffle compile
+2) truffle develop
+3) truffle migrate
 
 ### Testing commands:
 - truffle test
