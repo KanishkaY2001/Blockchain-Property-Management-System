@@ -15,32 +15,32 @@ const db = mysql.createConnection({
 //recordInfo = {
 //   dob: String,
 //   email: String, 
-//   DriversLicenceNumber: int,
-//   PhoneNuber: int,
-//   FullName: String,
+//   driversLicenceNumber: int,
+//   phoneNuber: int,
+//   fullName: String,
 //   walletAddress: String,
 //   balance: int,
-//   NumBedrooms: int,
-//   NumBathrooms: int,
+//   numBedrooms: int,
+//   numBathrooms: int,
 //   streetAddress: String,
-//   NumFloors: int,
+//   numFloors: int,
 // }
 export function AddNewUser(recordInfo) {
   query = 
   `INSERT INTO CertifiedUser (DateOfBirth, Email, DriversLicenceNumber, PhoneNuber, FullName)
-  VALUES ('${recordInfo.dob}', '${recordInfo.email}', ${recordInfo.DriversLicenceNumber}, ${recordInfo.PhoneNuber}, '${recordInfo.FullName}');
+  VALUES ('${recordInfo.dob}', '${recordInfo.email}', ${recordInfo.driversLicenceNumber}, ${recordInfo.phoneNuber}, '${recordInfo.fullName}');
 
   INSERT INTO EthereumWallet (Address, Balance)
   VALUES ('${recordInfo.walletAddress}', ${recordInfo.balance});
 
   INSERT INTO Has (DriversLicenceNumber, Address)
-  VALUES (${recordInfo.DriversLicenceNumber}, '${recordInfo.walletAddress}');
+  VALUES (${recordInfo.driversLicenceNumber}, '${recordInfo.walletAddress}');
 
   INSERT INTO Property (NumBedrooms, NumBathrooms, Address, NumFloors)
-  VALUES (${recordInfo.NumBedrooms}, ${recordInfo.NumBathrooms}, '${recordInfo.streetAddress}', ${recordInfo.NumFloors});
+  VALUES (${recordInfo.numBedrooms}, ${recordInfo.numBathrooms}, '${recordInfo.streetAddress}', ${recordInfo.numFloors});
 
   INSERT INTO Owns (DriversLicenceNumber, Address)
-  VALUES (${recordInfo.DriversLicenceNumber}, '${recordInfo.streetAddress}');`
+  VALUES (${recordInfo.driversLicenceNumber}, '${recordInfo.streetAddress}');`
 
     db.query(query, (err, results) => {
         if (err) { throw err; }
