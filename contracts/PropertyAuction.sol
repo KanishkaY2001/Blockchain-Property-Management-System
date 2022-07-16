@@ -40,23 +40,23 @@ contract PropertyAuction {
     function PlaceBid() external payable returns(bool success) {
         address sender = msg.sender;
         uint256 nowBlock = block.number;
-        require (nowBlock > startBlock && nowBlock < endBlock, "Cannot place bid");
-        require (sender != owner, "Owner cannot bid");
+        require(nowBlock > startBlock && nowBlock < endBlock, "Cannot place bid");
+        require(sender != owner, "Owner cannot bid");
 
         // Ensures that provided signature is valid / certified
         require(tokenContract.VerifySignature(sender), "Invalid Signature");
 
-        // NEED TO ADD minBid logic:
         // If its their first bid, ensure it's > topBid, otherwise don't accept bid
         // and let them bid as usual, add new ether deposit onto old ether deposit
+        uint256 value = msg.value;
         if (bids[sender] == 0) {
-            require(msg.value > topBid, "Bid value too low");
+            require(value > topBid && value > minBid, "Bid value too low");
         }
 
         // Here, we're using the addition arithmetic
         // because a person should be able to place
         // multiple bids to outbid the competition.
-        // Similar to Gumtree, or any auction service.
+        // Similar to Gumtree / other auction services.
         uint256 newBid = bids[sender] += msg.value;
         if (newBid > topBid) {
             topBid = newBid;
@@ -77,16 +77,15 @@ contract PropertyAuction {
         }
     }
 
-    // all unusccessful bidders can claim their ether back
+    // all unusccessful bidders can claim their ether back at anytime
     function ClaimDeposit() external returns(bool success) {
-        require(block.number > endBlock, "Auction has not ended");
         address sender = msg.sender;
         uint256 deposit = bids[sender];
 
         // Ensure that the caller is actually a bidder
         // Also ensure that the caller isn't the auction winner
         if (deposit != 0 && sender != topAddr) {
-            deposit = 0; // change to 0 immediately
+            bids[sender] = 0; // change to 0 immediately
 
             (bool sent, ) = payable(sender).call{value: deposit}("");
             require(sent, "Failed to send Ether");
