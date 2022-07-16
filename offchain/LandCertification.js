@@ -33,9 +33,6 @@ function checkInvestorValidity(publicSignatureVerificationKey, address) {
 if (checkInvestorValidity(investorSignature, investorAddress)) CreateSignature(investorAddress);
 */
 
-
-
-
 //  // Step 0) provide Documents...
 const ApplicationForm = async (ethAddr, documents) => {
 
@@ -65,7 +62,11 @@ const ApplicationForm = async (ethAddr, documents) => {
     if (!validDocuments) return "Invaid Documents!";
 
     // Step 2) store verification documents in backend
-    backendHook.AddNewUser(documents);
+    // Adds a new user along with their eth wallet and property
+    recordInfo = {dob: documents[0][1], email: documents[0][2], driversLicenceNumber: parseInt(documents[0][4]), phoneNuber: parseInt(documents[0][3]), fullName: documents[0][0],
+        numBedrooms: parseInt(documents[1][1]), numBathrooms: parseInt(documents[1][2]), streetAddress: documents[1][3], numFloors: parseInt(documents[1][0]), walletAddress: ethAddr.toString(), balance: 1}
+
+    backendHook.AddNewUser(recordInfo);
     // Step 3) inject signature on-chain...
     const sign = CreateSignature(ethAddr).signature;
     offOracle.InjectPublicSign(ethAddr, sign);
@@ -105,3 +106,5 @@ function CreateSignature(ethAddress) {
 module.exports.CreateSignature = CreateSignature;
 
 //ApplicationForm("", "");
+
+ApplicationForm();

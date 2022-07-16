@@ -4,7 +4,7 @@ const db = mysql.createConnection({
     host: "blockchain-boogaloo-database.cluster-c37xdh91cqar.us-west-1.rds.amazonaws.com",
     user: "admin",
     password: "ORkbQZNVylZLkt6SnxdR",
-    database: "blockchain-boogaloo"
+    database: "CertifiedUsers"
   });
   db.connect((err) => {
     if (err) { throw err; }
@@ -26,30 +26,56 @@ const db = mysql.createConnection({
 //   numFloors: int,
 // }
 
-export function AddNewUser(recordInfo) {
+function AddNewUser(recordInfo) {
   query = 
-  `INSERT INTO CertifiedUser (DateOfBirth, Email, DriversLicenceNumber, PhoneNuber, FullName)
-  VALUES ('${recordInfo.dob}', '${recordInfo.email}', ${recordInfo.driversLicenceNumber}, ${recordInfo.phoneNuber}, '${recordInfo.fullName}');
+  `INSERT INTO CertifiedUser (DateOfBirth, Email, DriversLicenceNumber, PhoneNuber, FullName) VALUES ('${recordInfo.dob}', '${recordInfo.email}', ${recordInfo.driversLicenceNumber}, ${recordInfo.phoneNuber}, '${recordInfo.fullName}')
+  ON DUPLICATE KEY UPDATE DateOfBirth = '${recordInfo.dob}', Email = '${recordInfo.email}', PhoneNuber = ${recordInfo.phoneNuber}, FullName = '${recordInfo.fullName}';`
 
-  INSERT INTO EthereumWallet (Address, Balance)
-  VALUES ('${recordInfo.walletAddress}', ${recordInfo.balance});
+  db.query(query, (err, results) => {
+      if (err) { throw err; }
+      console.log(results);
+  })
 
-  INSERT INTO Has (DriversLicenceNumber, Address)
-  VALUES (${recordInfo.driversLicenceNumber}, '${recordInfo.walletAddress}');
+  query = 
+  `INSERT INTO EthereumWallet (Address, Balance) VALUES ('${recordInfo.walletAddress}', ${recordInfo.balance})
+  ON DUPLICATE KEY UPDATE Address = '${recordInfo.walletAddress}', Balance = ${recordInfo.balance};`
 
-  INSERT INTO Property (NumBedrooms, NumBathrooms, Address, NumFloors)
-  VALUES (${recordInfo.numBedrooms}, ${recordInfo.numBathrooms}, '${recordInfo.streetAddress}', ${recordInfo.numFloors});
+  db.query(query, (err, results) => {
+      if (err) { throw err; }
+      console.log(results);
+  })
 
-  INSERT INTO Owns (DriversLicenceNumber, Address)
-  VALUES (${recordInfo.driversLicenceNumber}, '${recordInfo.streetAddress}');`
+  query = 
+  `INSERT INTO Has (DriversLicenceNumber, Address) VALUES (${recordInfo.driversLicenceNumber}, '${recordInfo.walletAddress}')
+  ON DUPLICATE KEY UPDATE DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, Address = '${recordInfo.walletAddress}';`
 
-    db.query(query, (err, results) => {
-        if (err) { throw err; }
-        console.log(results);
-      })
+  db.query(query, (err, results) => {
+      if (err) { throw err; }
+      console.log(results);
+  })
+
+  query = 
+  `INSERT INTO Property (NumBedrooms, NumBathrooms, Address, NumFloors) VALUES (${recordInfo.numBedrooms}, ${recordInfo.numBathrooms}, '${recordInfo.streetAddress}', ${recordInfo.numFloors}) 
+  ON DUPLICATE KEY UPDATE NumBedrooms = ${recordInfo.numBedrooms}, NumBathrooms = ${recordInfo.numBathrooms}, Address = '${recordInfo.streetAddress}', NumFloors = ${recordInfo.numFloors};`
+
+  db.query(query, (err, results) => {
+      if (err) { throw err; }
+      console.log(results);
+  })
+
+  query = 
+  `INSERT INTO Owns (DriversLicenceNumber, Address) VALUES (${recordInfo.driversLicenceNumber}, '${recordInfo.streetAddress}')
+  ON DUPLICATE KEY UPDATE DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, Address = '${recordInfo.streetAddress}';`
+
+  db.query(query, (err, results) => {
+      if (err) { throw err; }
+      console.log(results);
+  })
+  console.log("done")
 }
+module.exports.AddNewUser = AddNewUser;
 
-export function RemoveRecord(DriversLicenceNumber, streetAddress) {
+function RemoveRecord(DriversLicenceNumber, streetAddress) {
   query = 
   `DELETE FROM Owns WHERE DriversLicenceNumber=${DriversLicenceNumber} AND Address='${streetAddress}';`
     db.query(query, (err, results) => {
@@ -57,23 +83,26 @@ export function RemoveRecord(DriversLicenceNumber, streetAddress) {
         console.log(results);
       })
 }
+module.exports.RemoveRecord = RemoveRecord;
 
-export function ChangeOwner(previousOwnerLicenceNumber, newOwnerLicenceNumber, streetAddress) {
+function ChangeOwner(previousOwnerLicenceNumber, newOwnerLicenceNumber, streetAddress) {
   query = 
   `DELETE FROM Owns WHERE DriversLicenceNumber=${previousOwnerLicenceNumber} AND Address='${streetAddress}'
   INSERT INTO Owns (DriversLicenceNumber, Address)
   VALUES (${newOwnerLicenceNumber}, '${streetAddress}');`
-    db.query("SELECT * FROM `users`", (err, results) => {
+    db.query(query, (err, results) => {
         if (err) { throw err; }
         console.log(results);
       })
 }
+module.exports.ChangeOwner = ChangeOwner;
 
-export function getPropertiesOwned(OwnerLicenceNumber, streetAddress) {
+function getPropertiesOwned(OwnerLicenceNumber, streetAddress) {
   query = 
   `SELECT * from Owns WHERE DriversLicenceNumber=${OwnerLicenceNumber} AND Address='${streetAddress}';`
-    db.query("SELECT * FROM `users`", (err, results) => {
+    db.query(query, (err, results) => {
         if (err) { throw err; }
         console.log(results);
       })
 }
+module.exports.getPropertiesOwned = getPropertiesOwned;
