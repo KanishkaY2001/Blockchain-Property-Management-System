@@ -88,23 +88,26 @@ contract PropertyToken is ERC721URIStorage {
         require(auctions[_propId].GetOwner() == address(0), "Already in Auction");
         require(_start < _end, "Bad Auction Request");
 
-        return auctions[_propId] = new PropertyAuction(
+        PropertyAuction newAuction = new PropertyAuction(
             sender,
             _start,
             _end,
             _min,
             _propId
         );
+
+        transferFrom(sender, address(newAuction), _propId);
+        return auctions[_propId] = newAuction;
     }
 
 
     function TransferOwnership(uint256 _propId) external returns(bool success) {
         // Get auction and property ownership information
         PropertyAuction auction = auctions[_propId];
-        address currentOwner = auction.GetOwner();
+        address currentOwner = address(auction);
         
         // Verify that auction is valid (created by this contract)
-        require(msg.sender == address(auction));
+        require(msg.sender == currentOwner);
         // Verify that the auction has been setup properly
         require (currentOwner != address(0), "Invalid Auction");
         
