@@ -8,6 +8,7 @@ const Web3 = require("web3");
 const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:9545"));
 
 const offOracle = require('./CommonwealthOracle.js');
+const backendHook = require('./OwnershipRegistry.js');
 const commonwealth = web3.eth.accounts.create(web3.utils.randomHex(32));
 
 
@@ -63,17 +64,18 @@ const ApplicationForm = async (ethAddr, documents) => {
     validDocuments = true;
     if (!validDocuments) return "Invaid Documents!";
 
-    // Step 2) inject signature on-chain...
+    // Step 2) store verification documents in backend
+    backendHook.AddNewUser(documents);
+    // Step 3) inject signature on-chain...
     const sign = CreateSignature(ethAddr).signature;
     offOracle.InjectPublicSign(ethAddr, sign);
 
-    // Step 3) inject prop info on-chain...
+    // Step 4) inject prop info on-chain...
     if (documents.length > 1) {
         const encoded = EncodePropertyInfo(documents[1]);
         offOracle.InjectPropertyInfo(ethAddr, encoded);
     }
 }
-
 
 function EncodePropertyInfo(property) {
     var propInfo = {

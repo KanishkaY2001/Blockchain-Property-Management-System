@@ -14,7 +14,7 @@ const db = mysql.createConnection({
 //Adds a new user along with their eth wallet and property
 //recordInfo = {
 //   dob: String,
-//   email: String, 
+//   email: String,
 //   driversLicenceNumber: int,
 //   phoneNuber: int,
 //   fullName: String,
@@ -25,6 +25,7 @@ const db = mysql.createConnection({
 //   streetAddress: String,
 //   numFloors: int,
 // }
+
 export function AddNewUser(recordInfo) {
   query = 
   `INSERT INTO CertifiedUser (DateOfBirth, Email, DriversLicenceNumber, PhoneNuber, FullName)
@@ -62,6 +63,15 @@ export function ChangeOwner(previousOwnerLicenceNumber, newOwnerLicenceNumber, s
   `DELETE FROM Owns WHERE DriversLicenceNumber=${previousOwnerLicenceNumber} AND Address='${streetAddress}'
   INSERT INTO Owns (DriversLicenceNumber, Address)
   VALUES (${newOwnerLicenceNumber}, '${streetAddress}');`
+    db.query("SELECT * FROM `users`", (err, results) => {
+        if (err) { throw err; }
+        console.log(results);
+      })
+}
+
+export function getPropertiesOwned(OwnerLicenceNumber, streetAddress) {
+  query = 
+  `SELECT * from Owns WHERE DriversLicenceNumber=${OwnerLicenceNumber} AND Address='${streetAddress}';`
     db.query("SELECT * FROM `users`", (err, results) => {
         if (err) { throw err; }
         console.log(results);
