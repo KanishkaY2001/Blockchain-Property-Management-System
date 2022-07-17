@@ -106,3 +106,17 @@ function getPropertiesOwned(OwnerLicenceNumber, streetAddress) {
       })
 }
 module.exports.getPropertiesOwned = getPropertiesOwned;
+
+function checkUserExists(OwnerLicenceNumber) {
+  found = false;
+  query = 
+  `SELECT * from CertifiedUser WHERE DriversLicenceNumber=${OwnerLicenceNumber};`
+    db.query(query, (err, results) => {
+        if (err) { throw err; }
+        console.log(results);
+        //in reality should check the results, but not too essential for the scope to fully implement
+        found = true;
+      })
+  return found;
+}
+module.exports.checkUserExists = checkUserExists;

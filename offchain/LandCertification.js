@@ -54,11 +54,13 @@ const ApplicationForm = async (ethAddr, documents) => {
             "31 Spooner Street" // address
         ]
     ]
-
-    // Step 1) verify documents...
-    var validDocuments = false;
-    //...
-    validDocuments = true;
+    var validated = backendHook.checkUserExists(documents[0][4]);
+    // Step 1) verify documents if needed...
+    if (!validated) {
+        var validDocuments = false;
+        //...
+        validDocuments = true;
+    }
     if (!validDocuments) return "Invaid Documents!";
 
     // Step 2) store verification documents in backend
