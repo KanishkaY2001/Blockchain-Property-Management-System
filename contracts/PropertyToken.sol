@@ -28,7 +28,7 @@ contract PropertyToken is ERC721URIStorage {
         address _oracle
     ) ERC721("Property", "PTY") {
         oracle = PropertyOracle(_oracle);
-        commonwealth = oracle.GetCommonwealth();
+        commonwealth = msg.sender;
     }
 
 
