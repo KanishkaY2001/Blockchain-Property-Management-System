@@ -8,6 +8,7 @@ const Web3 = require("web3");
 const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:9545"));
 
 const offOracle = require('./CommonwealthOracle.js');
+const backendHook = require('./OwnershipRegistry.js');
 const commonwealth = web3.eth.accounts.create(web3.utils.randomHex(32));
 
 
@@ -32,9 +33,6 @@ function checkInvestorValidity(publicSignatureVerificationKey, address) {
 if (checkInvestorValidity(investorSignature, investorAddress)) CreateSignature(investorAddress);
 */
 
-
-
-
 //  // Step 0) provide Documents...
 const ApplicationForm = async (ethAddr, documents) => {
 
@@ -56,24 +54,31 @@ const ApplicationForm = async (ethAddr, documents) => {
             "31 Spooner Street" // address
         ]
     ]
-
-    // Step 1) verify documents...
-    var validDocuments = false;
-    //...
-    validDocuments = true;
+    var validated = backendHook.checkUserExists(documents[0][4]);
+    // Step 1) verify documents if needed...
+    if (!validated) {
+        var validDocuments = false;
+        //In reality this would be a lengthy, multi day processs so we use a off-chain database to store verification documents to store verified users so they dont have to verify multiple times
+        validDocuments = true;
+    }
     if (!validDocuments) return "Invaid Documents!";
 
-    // Step 2) inject signature on-chain...
+    // Step 2) store verification documents in backend
+    // Adds a new user along with their eth wallet and property
+    recordInfo = {dob: documents[0][1], email: documents[0][2], driversLicenceNumber: parseInt(documents[0][4]), phoneNuber: parseInt(documents[0][3]), fullName: documents[0][0],
+        numBedrooms: parseInt(documents[1][1]), numBathrooms: parseInt(documents[1][2]), streetAddress: documents[1][3], numFloors: parseInt(documents[1][0]), walletAddress: ethAddr.toString(), balance: 1}
+
+    backendHook.AddNewUser(recordInfo);
+    // Step 3) inject signature on-chain...
     const sign = CreateSignature(ethAddr).signature;
     offOracle.InjectPublicSign(ethAddr, sign);
 
-    // Step 3) inject prop info on-chain...
+    // Step 4) inject prop info on-chain...
     if (documents.length > 1) {
         const encoded = EncodePropertyInfo(documents[1]);
         offOracle.InjectPropertyInfo(ethAddr, encoded);
     }
 }
-
 
 function EncodePropertyInfo(property) {
     var propInfo = {
@@ -103,3 +108,5 @@ function CreateSignature(ethAddress) {
 module.exports.CreateSignature = CreateSignature;
 
 //ApplicationForm("", "");
+
+ApplicationForm();
