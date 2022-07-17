@@ -21,7 +21,9 @@
   "homepage": "https://github.com/orangeNspice16/COMP6452-Blockchain-Boogaloo#readme",
   "dependencies": {
     "@openzeppelin/contracts": "^4.7.0",
+    "btoa": "^1.2.1",
     "ethers": "^5.6.9",
+    "mysql": "^2.18.1",
     "web3": "^1.7.4"
   }
 }
