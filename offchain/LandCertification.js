@@ -58,7 +58,7 @@ const ApplicationForm = async (ethAddr, documents) => {
     // Step 1) verify documents if needed...
     if (!validated) {
         var validDocuments = false;
-        //...
+        //In reality this would be a lengthy, multi day processs so we use a off-chain database to store verification documents to store verified users so they dont have to verify multiple times
         validDocuments = true;
     }
     if (!validDocuments) return "Invaid Documents!";
