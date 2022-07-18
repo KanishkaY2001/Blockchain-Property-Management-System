@@ -17,23 +17,19 @@ contract('PropertyOracle', (accs) => {
         let contractSign = await propertyOracle.GetPublicSign(ethAddr, {from: accs[0]});
         
         assert(sign == contractSign);
+        let propertyInfo = await backendHook.getOwnedProperty(licenceNumber);
+        let pID = propertyInfo[0].propertyID;
+        let encoded = certif.EncodePropertyInfo([propertyInfo[0].NumFloors, propertyInfo[0].NumBedrooms, propertyInfo[0].NumBathrooms, propertyInfo[0].Address]);
+        await propertyOracle.AddPropertyInfo(pID, encoded, {from: accs[0]});
+        let contractInfo = await propertyOracle.GetPropertyInfo(pID, {from: accs[0]});
+        
+        assert(encoded == contractInfo);
 
-        backendHook.getOwnedProperty(ethAddr, part2, licenceNumber);
+        await propertyToken.DigitiseProperty(ethAddr, pID, {from: accs[0]});
 
-        //Extracting to callback function cause i need to for SQL stuff
-        async function part2(ethAddr, data){
-            let pID = data[0].propertyID;
-            let encoded = certif.EncodePropertyInfo([data[0].NumFloors, data[0].NumBedrooms, data[0].NumBathrooms, data[0].Address]);
-            await propertyOracle.AddPropertyInfo(pID, encoded, {from: accs[0]});
-            let contractInfo = await propertyOracle.GetPropertyInfo(pID, {from: accs[0]});
-            
-            assert(encoded == contractInfo);
-
-            await propertyToken.DigitiseProperty(ethAddr, pID, {from: accs[0]});
-
-            let tokenOwner = await propertyToken.ownerOf(pID, {from: accs[0]})
-            assert(tokenOwner == ethAddr);
-        }
+        let tokenOwner = await propertyToken.ownerOf(pID, {from: accs[0]})
+        assert(tokenOwner == ethAddr);
+        console.log("ran until the end")
     });
 
 });

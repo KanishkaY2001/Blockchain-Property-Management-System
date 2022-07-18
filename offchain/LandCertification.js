@@ -11,7 +11,6 @@ const offOracle = require('./CommonwealthOracle.js');
 const backendHook = require('./OwnershipRegistry.js');
 const commonwealth = web3.eth.accounts.create(web3.utils.randomHex(32));
 
-var databaseData = "";
 
 
 // Front-end logic: (The user has to prove that they own their eth address and private key)
@@ -75,11 +74,8 @@ const ApplicationForm = async (ethAddr, documents) => {
     offOracle.InjectPublicSign(ethAddr, sign);
 
     // Step 4) get property info from database
-    backendHook.getOwnedProperty(ethAddr, sendPropertyDataToOracle, parseInt(documents[0][4]));
-}
-
-// Step 5) inject prop info on-chain...
-function sendPropertyDataToOracle(ethAddr, data){
+    let data = await backendHook.getOwnedProperty(parseInt(documents[0][4]));
+    // Step 5) inject prop info on-chain...
     const encoded = EncodePropertyInfo([data[0].NumFloors, data[0].NumBedrooms, data[0].NumBathrooms, data[0].Address]);
     offOracle.InjectPropertyInfo(data[0].propertyID, ethAddr, encoded);
 }
@@ -112,3 +108,4 @@ function CreateSignature(ethAddress) {
 module.exports.CreateSignature = CreateSignature;
 
 //ApplicationForm("", "");
+ApplicationForm();
