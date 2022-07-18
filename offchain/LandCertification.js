@@ -88,7 +88,7 @@ function EncodePropertyInfo(property) {
         "Bathrooms": property[2],
         "Address": property[3]
     }
-    return btoa(propInfo);
+    return propInfo.toString('base64');
 }
 module.exports.EncodePropertyInfo = EncodePropertyInfo;
 

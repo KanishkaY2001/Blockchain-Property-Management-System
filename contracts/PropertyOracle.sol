@@ -27,8 +27,8 @@ contract PropertyOracle {
         publicSign[userAddr] = signature;
     }
 
-    function AddPropertyInfo(string memory encodedInfo) authorized external returns(uint256) {
-        propertyInfo[++propertyCount] = encodedInfo;
+    function AddPropertyInfo(uint256 propId, string memory encodedInfo) authorized external returns(uint256) {
+        propertyInfo[propId] = encodedInfo;
         return propertyCount;
     }
 

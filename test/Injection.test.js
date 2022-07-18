@@ -32,8 +32,23 @@ contract('PropertyOracle', (accs) => {
         let contractSign = await propertyOracle.GetPublicSign(ethAddr, {from: accs[0]});
         
         assert(sign == contractSign);
-        let x = await propertyOracle.AddPropertyInfo(encoded, {from: accs[0]});
-        //change fro 1 to pid fro database
+
+        //change from 1 to pid from db
+        await propertyOracle.AddPropertyInfo(1, encoded, {from: accs[0]});
+        //change from 1 to pid from db
+        let contractInfo = await propertyOracle.GetPropertyInfo(1, {from: accs[0]});
+        
+        assert(encoded == contractInfo);
+
+        
+        //change from 1 to pid from db
         await propertyToken.DigitiseProperty(ethAddr, 1, {from: accs[0]});
+
+        //change from 1 to pid from db
+        let tokenOwner = await propertyToken.ownerOf(1, {from: accs[0]})
+        assert(tokenOwner == ethAddr);
+
+
     });
+
 });
