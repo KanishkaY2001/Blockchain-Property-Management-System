@@ -19,7 +19,8 @@ contract('PropertyOracle', (accs) => {
                 "2", // floors
                 "4", // bedrooms
                 "5", // bathrooms
-                "31 Spooner Street" // address
+                "31 Spooner Street", // address
+                "1", // property ID
             ]
         ]
 
@@ -31,7 +32,8 @@ contract('PropertyOracle', (accs) => {
         let contractSign = await propertyOracle.GetPublicSign(ethAddr, {from: accs[0]});
         
         assert(sign == contractSign);
-        //let x = await propertyOracle.AddPropertyInfo(encoded, {from: accs[0]});
-        //await propertyToken.DigitiseProperty(ethAddr, pid, {from: accs[0]});
+        let x = await propertyOracle.AddPropertyInfo(encoded, {from: accs[0]});
+        //change fro 1 to pid fro database
+        await propertyToken.DigitiseProperty(ethAddr, 1, {from: accs[0]});
     });
 });

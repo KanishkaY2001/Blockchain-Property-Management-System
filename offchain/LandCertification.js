@@ -51,7 +51,8 @@ const ApplicationForm = async (ethAddr, documents) => {
             "2", // floors
             "4", // bedrooms
             "5", // bathrooms
-            "31 Spooner Street" // address
+            "31 Spooner Street", // address
+            "1" // property ID
         ]
     ]
     var validated = backendHook.checkUserExists(documents[0][4]);

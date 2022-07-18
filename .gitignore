@@ -1,0 +1,13 @@
+build/contracts/Address.json
+build/contracts/Context.json
+build/contracts/ERC165.json
+build/contracts/ERC721.json
+build/contracts/ERC721URIStorage.json
+build/contracts/IERC165.json
+build/contracts/IERC721.json
+build/contracts/IERC721Metadata.json
+build/contracts/IERC721Receiver.json
+build/contracts/PropertyAuction.json
+build/contracts/PropertyOracle.json
+build/contracts/PropertyToken.json
+build/contracts/Strings.json
