@@ -20,7 +20,7 @@ const InjectPublicSign = async (ethAddr, sign) => {
 module.exports.InjectPublicSign = InjectPublicSign;
 
 
-const InjectPropertyInfo = async (ethAddr, prop) => {
+const InjectPropertyInfo = async (propertyID, ethAddr, prop) => {
     const accs = await web3.eth.getAccounts();
     const id = await web3.eth.net.getId();
 
@@ -35,7 +35,7 @@ const InjectPropertyInfo = async (ethAddr, prop) => {
     );
 
     // Inject prop info into on-chain oracle
-    var pid = await oracle.methods.AddPropertyInfo(prop).call({from: accs[0]});
+    var pid = await oracle.methods.AddPropertyInfo(propertyID, prop).call({from: accs[0]});
     await token.methods.DigitiseProperty(ethAddr, pid).call({from: accs[0]});
 }
 module.exports.InjectPropertyInfo = InjectPropertyInfo;
