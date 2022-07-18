@@ -33,7 +33,6 @@ function AddNewUser(recordInfo) {
 
   db.query(query, (err, results) => {
       if (err) { throw err; }
-      console.log(results);
   })
 
   query = 
@@ -42,7 +41,6 @@ function AddNewUser(recordInfo) {
 
   db.query(query, (err, results) => {
       if (err) { throw err; }
-      console.log(results);
   })
 
   query = 
@@ -51,27 +49,23 @@ function AddNewUser(recordInfo) {
 
   db.query(query, (err, results) => {
       if (err) { throw err; }
-      console.log(results);
   })
 
   query = 
-  `INSERT INTO Property (NumBedrooms, NumBathrooms, Address, NumFloors) VALUES (${recordInfo.numBedrooms}, ${recordInfo.numBathrooms}, '${recordInfo.streetAddress}', ${recordInfo.numFloors}) 
+  `INSERT INTO Property (NumBedrooms, NumBathrooms, Address, NumFloors, PropertyID) VALUES (${recordInfo.numBedrooms}, ${recordInfo.numBathrooms}, '${recordInfo.streetAddress}', ${recordInfo.numFloors}, ${recordInfo.propertyID}) 
   ON DUPLICATE KEY UPDATE NumBedrooms = ${recordInfo.numBedrooms}, NumBathrooms = ${recordInfo.numBathrooms}, Address = '${recordInfo.streetAddress}', NumFloors = ${recordInfo.numFloors};`
 
   db.query(query, (err, results) => {
       if (err) { throw err; }
-      console.log(results);
   })
 
   query = 
-  `INSERT INTO Owns (DriversLicenceNumber, Address) VALUES (${recordInfo.driversLicenceNumber}, '${recordInfo.streetAddress}')
-  ON DUPLICATE KEY UPDATE DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, Address = '${recordInfo.streetAddress}';`
+  `INSERT INTO Owns (DriversLicenceNumber, PropertyID) VALUES (${recordInfo.driversLicenceNumber}, '${recordInfo.propertyID}')
+  ON DUPLICATE KEY UPDATE DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, PropertyID = '${recordInfo.propertyID}';`
 
   db.query(query, (err, results) => {
       if (err) { throw err; }
-      console.log(results);
   })
-  console.log("done")
 }
 module.exports.AddNewUser = AddNewUser;
 
@@ -80,7 +74,6 @@ function RemoveRecord(DriversLicenceNumber, streetAddress) {
   `DELETE FROM Owns WHERE DriversLicenceNumber=${DriversLicenceNumber} AND Address='${streetAddress}';`
     db.query(query, (err, results) => {
         if (err) { throw err; }
-        console.log(results);
       })
 }
 module.exports.RemoveRecord = RemoveRecord;
@@ -92,7 +85,6 @@ function ChangeOwner(previousOwnerLicenceNumber, newOwnerLicenceNumber, streetAd
   VALUES (${newOwnerLicenceNumber}, '${streetAddress}');`
     db.query(query, (err, results) => {
         if (err) { throw err; }
-        console.log(results);
       })
 }
 module.exports.ChangeOwner = ChangeOwner;
@@ -102,7 +94,6 @@ function getPropertiesOwned(OwnerLicenceNumber, streetAddress) {
   `SELECT * from Owns WHERE DriversLicenceNumber=${OwnerLicenceNumber} AND Address='${streetAddress}';`
     db.query(query, (err, results) => {
         if (err) { throw err; }
-        console.log(results);
       })
 }
 module.exports.getPropertiesOwned = getPropertiesOwned;
@@ -113,10 +104,21 @@ function checkUserExists(OwnerLicenceNumber) {
   `SELECT * from CertifiedUser WHERE DriversLicenceNumber=${OwnerLicenceNumber};`
     db.query(query, (err, results) => {
         if (err) { throw err; }
-        console.log(results);
         //in reality should check the results, but not too essential for the scope to fully implement
         found = results.length > 1;
       })
-  return found;
+  return false;
 }
 module.exports.checkUserExists = checkUserExists;
+
+function getOwnedProperty(ethAddr, callback, driversLicenceNumber) {
+  returnVal = ""
+  query = 
+  `SELECT * from Property where propertyID = (Select propertyID from Owns where DriversLicenceNumber = ${driversLicenceNumber})`
+    db.query(query, (err, results) => {driversLicenceNumber
+        if (err) { throw err; }
+        callback(ethAddr, results);
+      })
+  return returnVal;
+}
+module.exports.getOwnedProperty = getOwnedProperty;
