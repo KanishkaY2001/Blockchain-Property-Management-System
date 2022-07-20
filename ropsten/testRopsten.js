@@ -66,19 +66,16 @@ module.exports = async function(callback) {
         console.log("SUCCESS! Info from the Oracle matches.");
     }
     
-    // assert(encoded == contractInfo);
-
-    // await propertyToken.DigitiseProperty(ethAddr, pID, {from: accs[0]});
-
-    // let tokenOwner = await propertyToken.ownerOf(pID, {from: accs[0]})
-    // assert(tokenOwner == ethAddr);
-    // console.log("ran until the end")
+    // Digitise Property as Commonwealth 
+    await propertyToken.DigitiseProperty(ACC2_ADDR, pID, { from: ACC1_ADDR });
 
 
+    // Check success from ACC2
+    let tokenOwner = await propertyToken.ownerOf(pID, { from: ACC2_ADDR });
     
-
-
-	
+    if (tokenOwner == ACC2_ADDR) {
+        console.log("SUCCESS! ACC2 is the proud owner of ProperToken #",pID);
+    }	
 	callback();
 }
 
