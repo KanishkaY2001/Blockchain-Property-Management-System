@@ -92,10 +92,10 @@ async function AddNewUser(recordInfo, propInfo) {
                 PropertyID
             ) VALUES (
                 ${recordInfo.driversLicenceNumber}, 
-                ${propInfo.propertyID}'
+                ${propInfo.propertyID}
             ) ON DUPLICATE KEY UPDATE 
                 DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, 
-                PropertyID = '${propInfo.propertyID}';`
+                PropertyID = ${propInfo.propertyID};`
 
         await connection.query(query)
     }
