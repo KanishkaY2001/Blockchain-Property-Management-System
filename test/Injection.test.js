@@ -29,7 +29,6 @@ contract('PropertyOracle', (accs) => {
 
         let tokenOwner = await propertyToken.ownerOf(pID, {from: accs[0]})
         assert(tokenOwner == ethAddr);
-        console.log("ran until the end")
     });
 
 });
