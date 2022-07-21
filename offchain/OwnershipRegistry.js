@@ -15,7 +15,7 @@ const mysql = require('mysql2/promise');
 //   numFloors: int,
 // }
 
-async function AddNewUser(recordInfo) {
+async function AddNewUser(recordInfo, propInfo) {
   const connection = await mysql.createConnection({
     host: "blockchain-boogaloo-database.cluster-c37xdh91cqar.us-west-1.rds.amazonaws.com",
     user: "admin",
@@ -35,23 +35,25 @@ async function AddNewUser(recordInfo) {
 
   await connection.query(query)
 
-  query = 
-  `INSERT INTO Has (DriversLicenceNumber, Address) VALUES (${recordInfo.driversLicenceNumber}, '${recordInfo.walletAddress}')
-  ON DUPLICATE KEY UPDATE DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, Address = '${recordInfo.walletAddress}';`
+  if (propertyInfo != false) {
+    query = 
+    `INSERT INTO Has (DriversLicenceNumber, Address) VALUES (${recordInfo.driversLicenceNumber}, '${recordInfo.walletAddress}')
+    ON DUPLICATE KEY UPDATE DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, Address = '${recordInfo.walletAddress}';`
 
-  await connection.query(query)
+    await connection.query(query)
 
-  query = 
-  `INSERT INTO Property (NumBedrooms, NumBathrooms, Address, NumFloors, PropertyID) VALUES (${recordInfo.numBedrooms}, ${recordInfo.numBathrooms}, '${recordInfo.streetAddress}', ${recordInfo.numFloors}, ${recordInfo.propertyID}) 
-  ON DUPLICATE KEY UPDATE NumBedrooms = ${recordInfo.numBedrooms}, NumBathrooms = ${recordInfo.numBathrooms}, Address = '${recordInfo.streetAddress}', NumFloors = ${recordInfo.numFloors};`
+    query = 
+    `INSERT INTO Property (NumBedrooms, NumBathrooms, Address, NumFloors, PropertyID) VALUES (${propInfo.numBedrooms}, ${propInfo.numBathrooms}, '${propInfo.streetAddress}', ${propInfo.numFloors}, ${propInfo.propertyID}) 
+    ON DUPLICATE KEY UPDATE NumBedrooms = ${propInfo.numBedrooms}, NumBathrooms = ${propInfo.numBathrooms}, Address = '${propInfo.streetAddress}', NumFloors = ${propInfo.numFloors};`
 
-  await connection.query(query)
+    await connection.query(query)
 
-  query = 
-  `INSERT INTO Owns (DriversLicenceNumber, PropertyID) VALUES (${recordInfo.driversLicenceNumber}, '${recordInfo.propertyID}')
-  ON DUPLICATE KEY UPDATE DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, PropertyID = '${recordInfo.propertyID}';`
+    query = 
+    `INSERT INTO Owns (DriversLicenceNumber, PropertyID) VALUES (${recordInfo.driversLicenceNumber}, '${propInfo.propertyID}')
+    ON DUPLICATE KEY UPDATE DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, PropertyID = '${propInfo.propertyID}';`
 
-  await connection.query(query)
+    await connection.query(query)
+  }
 }
 module.exports.AddNewUser = AddNewUser;
 

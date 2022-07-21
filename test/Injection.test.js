@@ -11,7 +11,7 @@ contract('PropertyOracle', (accs) => {
         let licenceNumber = "23631261"
 
         let ethAddr = accs[2];
-        let sign = certif.CreateSignature(ethAddr).signature;
+        let sign = await certif.CreateSignature(ethAddr);
 
         await propertyOracle.AddPublicSign(ethAddr, sign, {from: accs[0]});
         let contractSign = await propertyOracle.GetPublicSign(ethAddr, {from: accs[0]});
