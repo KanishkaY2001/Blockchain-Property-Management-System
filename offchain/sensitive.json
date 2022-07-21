@@ -1,0 +1,6 @@
+{
+	"host": "blockchain-boogaloo-database.cluster-c37xdh91cqar.us-west-1.rds.amazonaws.com",
+	"user": "admin",
+	"password": "ORkbQZNVylZLkt6SnxdR",
+	"database": "CertifiedUsers"
+}
