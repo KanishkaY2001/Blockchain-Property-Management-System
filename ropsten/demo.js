@@ -2,7 +2,7 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 const ACC1_ADDR = '0x4E8C9D62B30a28397A3e36E0Ac88FD4c6C833d2E';  // Ethereum address
-//const ACC1_PKEY = '473537deb539628190f4611df62383c333baf198a3c96a7080392322fa090fce';    // Private key (without 0x at the beginning)
+const ACC1_PKEY = '473537deb539628190f4611df62383c333baf198a3c96a7080392322fa090fce';    // Private key (without 0x at the beginning)
 
 const ACC2_ADDR = '0x7cf85281115700752a4a4201e49f5f5b6D3B22bF';  // Ethereum address
 //const ACC2_PKEY = 'c80171d8b7303dd3cd1198f462d0d7b751e51bbb1ae2f88828174d77b55810dc';    // Private key
@@ -37,7 +37,7 @@ module.exports = async function(callback) {
     
 
     // Create Property Owner Signature (ie ACC2)
-    let sign = await certif.CreateSignature(ACC2_ADDR);
+    let sign = await certif.CreateSignature(ACC2_ADDR,ACC1_PKEY);
 
     // Add Owner's Signature to Oracle as Commonwealth (ie ACC1)
     await propertyOracle.AddPublicSign(ACC2_ADDR, sign,{ from: ACC1_ADDR });   
@@ -48,8 +48,6 @@ module.exports = async function(callback) {
     if (sign == contractSign) {
         console.log("SUCCESS! Signature from the Oracle matches.");
     }
-
-    
 
     // Get Property Info From AWS Database
     let licenceNumber = "23631261";
@@ -82,29 +80,43 @@ module.exports = async function(callback) {
         console.log("Token Address: ",propertyToken.address);
     }	
 
-    //await propertyToken.transferFrom('0x7cf85281115700752a4a4201e49f5f5b6D3B22bF','0x3AF7205BAD872e7200986F68cbAd74f01ab6AbD6',1, { from: ACC2_ADDR });
+    await propertyToken.transferFrom('0x7cf85281115700752a4a4201e49f5f5b6D3B22bF','0x3AF7205BAD872e7200986F68cbAd74f01ab6AbD6',1, { from: ACC2_ADDR });
     
     // Generate Signed Certificates to verify auction participants
-    var ACC3_CERT = certif.CreateSignature(ACC3_ADDR);
-    var ACC4_CERT = certif.CreateSignature(ACC4_ADDR);
-    var ACC5_CERT = certif.CreateSignature(ACC5_ADDR);
+    var ACC3_CERT = await certif.CreateSignature(ACC3_ADDR,ACC1_PKEY);
+    console.log("Created Signature For ACC3.")
+    var ACC4_CERT = await certif.CreateSignature(ACC4_ADDR,ACC1_PKEY);
+    console.log("Created Signature For ACC4.")
+    var ACC5_CERT = await certif.CreateSignature(ACC5_ADDR,ACC1_PKEY);
+    console.log("Created Signature For ACC5.")
 
-    await propertyOracle.AddPublicSign(ACC3_ADDR, ACC3_CERT.signature,{ from: ACC1_ADDR });
-    await propertyOracle.AddPublicSign(ACC4_ADDR, ACC4_CERT.signature,{ from: ACC1_ADDR });
-    await propertyOracle.AddPublicSign(ACC5_ADDR, ACC5_CERT.signature,{ from: ACC1_ADDR });
+    await propertyOracle.AddPublicSign(ACC3_ADDR, ACC3_CERT,{ from: ACC1_ADDR });
+    console.log("Added Signature For ACC3.")
+    await propertyOracle.AddPublicSign(ACC4_ADDR, ACC4_CERT,{ from: ACC1_ADDR });
+    console.log("Added Signature For ACC4.")
+    await propertyOracle.AddPublicSign(ACC5_ADDR, ACC5_CERT,{ from: ACC1_ADDR });
+    console.log("Added Signature For ACC5.")
 
     console.log(await propertyOracle.GetPublicSign(ACC3_ADDR),{ from: ACC1_ADDR });
 
-    console.log(await propertyToken.VerifySignature(ACC2_ADDR),{ from: ACC1_ADDR });
+     console.log(await propertyToken.VerifySignature(ACC3_ADDR),{ from: ACC1_ADDR });
 
 
-    // Create Auction (min bid 100 wei)
-    // var auction = await propertyToken.NewAuction(12634382, 12634402, 100, 1,{ from: ACC2_ADDR });
+    //Create Auction (min bid 100 wei)
+    //var auction = await propertyToken.NewAuction(12643274, 12643294, 100, 1,{ from: ACC2_ADDR });
 
-    // await auction.PlaceBid({ from: ACC3_ADDR }, {value: 1 * 10^16});
+    console.log( await propertyToken.auctions.call(1, {from: ACC1_ADDR}));
+    //var auctionAddr =
+
+    var auctionAddr = await propertyToken.auctions.call(1, {from: ACC2_ADDR});
+    const PropertyAuction = artifacts.require("PropertyAuction");
+    const propertyAuction = await PropertyAuction.at(auctionAddr);
+
+
+    await propertyAuction.PlaceBid({ from: ACC3_ADDR, value: 1 * 10^16});
     
    
-    // console.log(await auction.topAddr," is the current top bidder with a value of ",await auction.topBid,"wei");
+    console.log(await propertyAuction.topAddr," is the current top bidder with a value of ",await propertyAuction.topBid,"wei");
     
 
 

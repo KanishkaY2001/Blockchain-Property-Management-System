@@ -40,7 +40,7 @@ contract PropertyAuction {
     function PlaceBid() external payable returns(bool success) {
         address sender = msg.sender;
         uint256 nowBlock = block.number;
-        require(nowBlock > startBlock && nowBlock < endBlock, "Cannot place bid");
+        require(nowBlock >= startBlock && nowBlock < endBlock, "Cannot place bid");
         require(sender != owner, "Owner cannot bid");
 
         // Ensures that provided signature is valid / certified

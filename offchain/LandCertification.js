@@ -93,13 +93,27 @@ function EncodePropertyInfo(property) {
 module.exports.EncodePropertyInfo = EncodePropertyInfo;
 
 
-const CreateSignature = async (ethAddress) => {
+// const CreateSignature = async (ethAddress, cw) => {
+//     const encoded = ethers.utils.solidityPack(["string", "address", "string"], 
+//     ["The Following Eth Address: ", ethAddress, " Is Certified To Participate."]);
+
+//     const signedCertificateMessage = web3.utils.keccak256(encoded).toString('hex');
+//     const accs = await web3.eth.getAccounts();
+//     const signature = await web3.eth.sign(signedCertificateMessage, cw);
+//     console.log(accs[0]);
+//     return signature;
+// }
+function CreateSignature(ethAddress,pK) {
     const encoded = ethers.utils.solidityPack(["string", "address", "string"], 
     ["The Following Eth Address: ", ethAddress, " Is Certified To Participate."]);
-
     const signedCertificateMessage = web3.utils.keccak256(encoded).toString('hex');
-    const accs = await web3.eth.getAccounts();
-    const signature = await web3.eth.sign(signedCertificateMessage, accs[0]);
-    return signature;
+
+    // The commonwealth performs this logic locally, through backend, to ensure that their private key is not compromised
+    const publicSignatureVerificationKey = web3.eth.accounts.sign(signedCertificateMessage, pK);
+    const verificationInfo = {
+        signedMessage : publicSignatureVerificationKey.messageHash,
+        signature : publicSignatureVerificationKey.signature
+    }
+    return publicSignatureVerificationKey.signature;
 }
 module.exports.CreateSignature = CreateSignature;
