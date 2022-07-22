@@ -23,6 +23,10 @@
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
 
+var HDWalletProvider = require("truffle-hdwallet-provider");
+const MNEMONIC = '473537deb539628190f4611df62383c333baf198a3c96a7080392322fa090fce';
+
+
 module.exports = {
   /**
    * Networks define how you connect to your ethereum client and let you set the
@@ -59,14 +63,20 @@ module.exports = {
     //
     // Useful for deploying to a public network.
     // Note: It's important to wrap the provider as a function to ensure truffle uses a new provider every time.
-    // ropsten: {
-    //   provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/v3/YOUR-PROJECT-ID`),
-    //   network_id: 3,       // Ropsten's id
-    //   gas: 5500000,        // Ropsten has a lower block limit than mainnet
-    //   confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
-    //   timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-    //   skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
-    // },
+    ropsten: {
+      provider: () => new HDWalletProvider(
+        ["473537deb539628190f4611df62383c333baf198a3c96a7080392322fa090fce",
+        "c80171d8b7303dd3cd1198f462d0d7b751e51bbb1ae2f88828174d77b55810dc",
+        "59cb18ddb6e88f99609af82c1b08a0584c04856d06ef0a3f6d274abea81d8788",
+        "67bb7c25da33ba04fa1e0865dcef858995576a4a09de3f05ffde5074df39df02",
+        "3a695e91c4d8249c3f65caf9633db22e56dd3b54744659ae34218d2a98e03dba"], `https://ropsten.infura.io/v3/a32067bd62574d698ba0fac2b6b05072`, 0, 5),
+      network_id: 3,       // Ropsten's id
+      gas: 5500000,        // Ropsten has a lower block limit than mainnet
+      confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
+      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+      
+    }
     //
     // Useful for private networks
     // private: {
