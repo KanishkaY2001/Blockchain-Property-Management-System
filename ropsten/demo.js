@@ -79,8 +79,6 @@ module.exports = async function(callback) {
         console.log("SUCCESS! ACC2 is the proud owner of ProperToken #",pID);
         console.log("Token Address: ",propertyToken.address);
     }	
-
-    await propertyToken.transferFrom('0x7cf85281115700752a4a4201e49f5f5b6D3B22bF','0x3AF7205BAD872e7200986F68cbAd74f01ab6AbD6',1, { from: ACC2_ADDR });
     
     // Generate Signed Certificates to verify auction participants
     var ACC3_CERT = await certif.CreateSignature(ACC3_ADDR,ACC1_PKEY);
