@@ -5,20 +5,20 @@ import "./PropertyToken.sol";
 contract PropertyAuction {
 
     // Auction details 
-    uint256 public startBlock;
-    uint256 public endBlock;
-    uint256 public minBid;
+    uint256 private startBlock;
+    uint256 private endBlock;
+    uint256 private minBid;
 
     // property seller
-    PropertyToken public tokenContract;
-    address public owner;
-    uint256 public propertyId;
+    PropertyToken private tokenContract;
+    address private owner;
+    uint256 private propertyId;
 
     // Bidding details
-    uint256 public topBid; // top bid value
-    address public topAddr; // top bidder address
-    mapping (address => uint256) public bids; // map of all bids
-    
+    uint256 private topBid; // top bid value
+    address private topAddr; // top bidder address
+    mapping (address => uint256) private bids; // map of all bids
+
     constructor(
         address _owner, 
         uint256 _startBlock, 
@@ -70,27 +70,44 @@ contract PropertyAuction {
     function ClaimProperty() external returns(bool success) {
         require(block.number > endBlock, "Auction has not ended");
         require(msg.sender == topAddr || msg.sender == owner, "Not Authorized");
+        bool soldStatus = false; // If not sold, owner gets property back
         if (topBid != 0) {
             // ensure that claimAsset can't be called multiple times
             topBid = 0;
-            return tokenContract.TransferOwnership(propertyId);
+            soldStatus = true; // If sold, winner gets property
         }
+        return tokenContract.TransferOwnership(propertyId, soldStatus);
     }
 
     // all unusccessful bidders can claim their ether back at anytime
     function ClaimDeposit() external returns(bool success) {
         address sender = msg.sender;
         uint256 deposit = bids[sender];
+        uint256 topDepo = bids[topAddr];
+        bool canClaim = false;
 
-        // Ensure that the caller is actually a bidder
-        // Also ensure that the caller isn't the auction winner
+
+        // doc: owner's deposit will always be 0 (can't bid)
+        // doc: random people/winner can't satisfy this if-else-if
         if (deposit != 0 && sender != topAddr) {
             bids[sender] = 0; // change to 0 immediately
+            canClaim = true;
 
-            (bool sent, ) = payable(sender).call{value: deposit}("");
-            require(sent, "Failed to send Ether");
-            return true;
+        // doc: only owner can access else-if statement
+        // doc: can only access it once, and can claim deposit
+        } else if (sender == owner && block.number > endBlock && bids[topAddr] != 0) {
+            bids[topAddr] = 0;
+            deposit = topDepo;
+            canClaim = true;
         }
+
+        // doc: if the if-else-if statement isn't accessed, false
+        if (!canClaim) return false;
+
+        // doc: send the deposit owed to the respective auction participant
+        (bool sent, ) = payable(sender).call{value: deposit}("");
+        require(sent, "Failed to send Ether");
+        return true;
     }
     
     // We need an 'external' function to allow factory contract
@@ -101,7 +118,16 @@ contract PropertyAuction {
 
     // We need an 'external' function to allow factory contract
     // to verify that the auction was created by factory, and not 3rd party
-    function GetOwner() external view returns(address addr) {
-        return owner;
+    // GSET = Get / Set. Pass True to set, Pass False to get without setting
+    function GSetOwner(bool set) external returns(address addr) {
+        // need this, because the value may change, in which case, the function
+        // needs to return the previous value of owner (before setting to address(0))
+        address _owner = owner;
+        if (set) {
+            // Making sure that owner can only be set by token contract
+            require(msg.sender == address(tokenContract), "Not Authorized");
+            owner = address(0);
+        }
+        return _owner;
     }
 }

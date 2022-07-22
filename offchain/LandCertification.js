@@ -9,9 +9,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:9545"));
 
 const offOracle = require('./CommonwealthOracle.js');
 const backendHook = require('./OwnershipRegistry.js');
-const commonwealth = web3.eth.accounts.create(web3.utils.randomHex(32));
-
-
 
 // Front-end logic: (The user has to prove that they own their eth address and private key)
 // This can be done by requiring the user to sign a message while they submit the application form
@@ -36,49 +33,53 @@ if (checkInvestorValidity(investorSignature, investorAddress)) CreateSignature(i
 //  // Step 0) provide Documents...
 const ApplicationForm = async (ethAddr, documents) => {
 
-    // TEMPORARY SETTINGS:
-    const accs = await web3.eth.getAccounts();
-    ethAddr = accs[1]; // replace with ethAddr
-    documents = [ // Use real documentation
-        [
-            "John Smith", // first and last name
-            "16/08/1976", // date of birth
-            "John_Smith@gmail.com", // email
-            "0484132656", // phone number
-            "23631261" // licence number
-        ],
-        [
-            "2", // floors
-            "4", // bedrooms
-            "5", // bathrooms
-            "31 Spooner Street", // address
-            "1" //propertyID
-        ]
-    ]
+    var hasProperty = documents.length == 2;
     var validated = backendHook.checkUserExists(documents[0][4]);
+    
     // Step 1) verify documents if needed...
     if (!validated) {
         var validDocuments = false;
-        //In reality this would be a lengthy, multi day processs so we use a off-chain database to store verification documents to store verified users so they dont have to verify multiple times
-        validDocuments = true;
-        if (!validDocuments) return "Invaid Documents!";
+        // In reality this would be a lengthy, multi day processs so we use a off-chain database to store 
+        // verification documents to store verified users so they dont have to verify multiple times
+        if (!(validDocuments = true)) return "Invaid Documents!";
     }
+    
     // Step 2) store verification documents in backend
     // Adds a new user along with their eth wallet and property
-    recordInfo = {dob: documents[0][1], email: documents[0][2], driversLicenceNumber: parseInt(documents[0][4]), phoneNuber: parseInt(documents[0][3]), fullName: documents[0][0],
-        numBedrooms: parseInt(documents[1][1]), numBathrooms: parseInt(documents[1][2]), streetAddress: documents[1][3], numFloors: parseInt(documents[1][0]), walletAddress: ethAddr.toString(), balance: 1, propertyID: documents[1][4]}
+    recordInfo = {
+        fullName: documents[0][0],
+        dob: documents[0][1],
+        email: documents[0][2],
+        phoneNuber: parseInt(documents[0][3]),
+        driversLicenceNumber: parseInt(documents[0][4]),
+        walletAddress: ethAddr.toString(),
+        balance: 1
+    }
 
-    backendHook.AddNewUser(recordInfo);
+    propertyInfo = hasProperty ? {
+        numFloors: parseInt(documents[1][0]),
+        numBedrooms: parseInt(documents[1][1]),
+        numBathrooms: parseInt(documents[1][2]),
+        streetAddress: documents[1][3],
+        propertyID: documents[1][4]
+    } : false;
+
+    backendHook.AddNewUser(recordInfo, propertyInfo);
+
     // Step 3) inject signature on-chain...
-    const sign = CreateSignature(ethAddr).signature;
-    offOracle.InjectPublicSign(ethAddr, sign);
+    const sign = await CreateSignature(ethAddr);
+    await offOracle.InjectPublicSign(ethAddr, sign);
 
-    // Step 4) get property info from database
+    // Step 4) if user owns property, get property info from database
+    if (!hasProperty) return;
     let data = await backendHook.getOwnedProperty(parseInt(documents[0][4]));
+
     // Step 5) inject prop info on-chain...
     const encoded = EncodePropertyInfo([data[0].NumFloors, data[0].NumBedrooms, data[0].NumBathrooms, data[0].Address]);
-    offOracle.InjectPropertyInfo(data[0].propertyID, ethAddr, encoded);
+    await offOracle.InjectPropertyInfo(data[0].propertyID, ethAddr, encoded);
 }
+module.exports.ApplicationForm = ApplicationForm;
+
 
 function EncodePropertyInfo(property) {
     var propInfo = {
@@ -92,20 +93,13 @@ function EncodePropertyInfo(property) {
 module.exports.EncodePropertyInfo = EncodePropertyInfo;
 
 
-function CreateSignature(ethAddress) {
+const CreateSignature = async (ethAddress) => {
     const encoded = ethers.utils.solidityPack(["string", "address", "string"], 
     ["The Following Eth Address: ", ethAddress, " Is Certified To Participate."]);
-    const signedCertificateMessage = web3.utils.keccak256(encoded).toString('hex');
 
-    // The commonwealth performs this logic locally, through backend, to ensure that their private key is not compromised
-    const publicSignatureVerificationKey = web3.eth.accounts.sign(signedCertificateMessage, commonwealth.privateKey);
-    const verificationInfo = {
-        signedMessage : publicSignatureVerificationKey.messageHash,
-        signature : publicSignatureVerificationKey.signature
-    }
-    return verificationInfo;
+    const signedCertificateMessage = web3.utils.keccak256(encoded).toString('hex');
+    const accs = await web3.eth.getAccounts();
+    const signature = await web3.eth.sign(signedCertificateMessage, accs[0]);
+    return signature;
 }
 module.exports.CreateSignature = CreateSignature;
-
-//ApplicationForm("", "");
-ApplicationForm();

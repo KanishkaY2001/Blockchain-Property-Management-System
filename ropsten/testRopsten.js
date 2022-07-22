@@ -37,7 +37,7 @@ module.exports = async function(callback) {
     
 
     // Create Property Owner Signature (ie ACC2)
-    let sign = certif.CreateSignature(ACC2_ADDR).signature;
+    let sign = await certif.CreateSignature(ACC2_ADDR);
 
     // Add Owner's Signature to Oracle as Commonwealth (ie ACC1)
     await propertyOracle.AddPublicSign(ACC2_ADDR, sign,{ from: ACC1_ADDR });   

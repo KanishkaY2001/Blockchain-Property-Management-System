@@ -31,6 +31,13 @@ contract PropertyToken is ERC721URIStorage {
         commonwealth = msg.sender;
     }
 
+    // Overriding the transfer func to ensure that properties may only be traded through an auction
+    // OR checking if recipient is the auction contract, to transfer NFT to auction contract
+    function _transfer(address sender, address recipient, uint256 tokenId) internal virtual override {
+        address auctAddr = address(auctions[tokenId]);
+        require(auctAddr == sender || auctAddr == recipient, "Unauthorized");
+        super._transfer(sender, recipient, tokenId);
+    }
 
     function DigitiseProperty(address owner, uint256 newItemId) external {
         require(msg.sender == commonwealth, "Not Commonwealth");
@@ -79,16 +86,17 @@ contract PropertyToken is ERC721URIStorage {
     }
 
 
-    function NewAuction(uint256 _start, uint256 _end, uint256 _min, uint256 _propId) external returns(PropertyAuction addr) {
-        // Verify property ownership
-        // Verify if property already auctioned
-        // Verify provided timings make sense
+    function NewAuction(uint256 _start, uint256 _end, uint256 _min, uint256 _propId) external returns(address addr) {
+        
         address sender = msg.sender;
-        require(ownerOf(_propId) == sender, "Doesn't Own This Property");
-        require(auctions[_propId].GetOwner() == address(0), "Already in Auction");
-        require(_start < _end, "Bad Auction Request");
+        //PropertyAuction auc = auctions[_propId];
 
-        PropertyAuction newAuction = new PropertyAuction(
+        // First time auction or property already auctioned, hence need two || checks
+        //require(address(auc) == address(0) || auc.GSetOwner(false) == address(0), "Already in Auction");
+        require(ownerOf(_propId) == sender, "Doesn't Own This Property"); // Verify property ownership
+        require(_start < _end, "Bad Auction Request"); // Verify provided timings make sense
+
+        auctions[_propId] = new PropertyAuction(
             sender,
             _start,
             _end,
@@ -96,26 +104,33 @@ contract PropertyToken is ERC721URIStorage {
             _propId
         );
 
-        transferFrom(sender, address(newAuction), _propId);
-        return auctions[_propId] = newAuction;
+        require(_start + _end + _min + _propId > 0, "DAWD");
+        address auctionAddr = address(auctions[_propId]);
+        transferFrom(sender, auctionAddr, _propId);
+        return auctionAddr;
     }
 
 
-    function TransferOwnership(uint256 _propId) external returns(bool success) {
+    function TransferOwnership(uint256 _propId, bool sold) external returns(bool success) {
         // Get auction and property ownership information
         PropertyAuction auction = auctions[_propId];
-        address currentOwner = address(auction);
+        address auctionAddr = address(auction);
         
         // Verify that auction is valid (created by this contract)
-        require(msg.sender == currentOwner);
-        // Verify that the auction has been setup properly
-        require (currentOwner != address(0), "Invalid Auction");
+        require(msg.sender == auctionAddr);
         
         // Check that owner owns the property listed on the auction
-        if (ownerOf(_propId) == currentOwner) {
+        if (ownerOf(_propId) == auctionAddr) {
+            
+            // Basically removes propId -> auction mapping by setting owner to address(0)
+            // This is because NewAuction function checks if owner is address(0).
+            // And this line will make it address(0) after the auction ends. Property can't have
+            // multiple auctions at once, and allows x number of auctions over time
+            address newOwner = sold? auction.GetWinner() : auctions[_propId].GSetOwner(true);
+
             // use ERC721 interface to call transferFrom()
-            address winner = auction.GetWinner();
-            transferFrom(currentOwner, winner, _propId);
+            // Transfer to winner if sold, otherwise back to previous owner
+            transferFrom(auctionAddr, newOwner, _propId);
             return true;
         }
     }
