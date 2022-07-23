@@ -34,3 +34,4 @@ Project Interactive Codebase
 - smart contracts in contracts folder
 - contract migrations in migrations folder
 - essential imports in node_modules folder
+- ropsten testnet scripts in ropsten folder
