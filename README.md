@@ -10,6 +10,8 @@ Project Interactive Codebase
 ### Node Modules
 - web3
 - ethers
+- mysql2
+- truffle-hdwallet-provider
 
 ### develop Commands:
 1) truffle compile
