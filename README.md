@@ -21,6 +21,13 @@ Project Interactive Codebase
 ### Testing commands:
 - truffle test
 
+### Ropsten commands:
+1) truffle deploy --network ropsten
+2) truffle exec ropsten/CertifyUsers.js --network ropsten
+3) truffle exec ropsten/StartAuction.js --network ropsten
+4) truffle exec ropsten/PlaceBids.js --network ropsten
+5) truffle exec ropsten/UserClaim.js --network ropsten
+
 ### Notes:
 - unit tests in test folder
 - offchain logic in offchain folder
