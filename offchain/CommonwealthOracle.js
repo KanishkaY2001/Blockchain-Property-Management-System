@@ -1,31 +1,26 @@
 //=======================================//
 //          Initialize Libraries         //
 //=======================================//
-
-const Web3 = require("web3");
-const web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:9545"));
-const PropertyOracle = artifacts.require("PropertyOracle");
-const PropertyToken = artifacts.require("PropertyToken");
-
-
-const InjectPublicSign = async (ethAddr, sign) => {
-    const accs = await web3.eth.getAccounts();
+const InjectPublicSign = async (ethAddr, sign, cw, artifacts) => {
+    const PropertyOracle = artifacts.require("PropertyOracle");
     const propertyOracle = await PropertyOracle.deployed();
 
     // Inject public signature into on-chain oracle
-    await propertyOracle.AddPublicSign(ethAddr, sign, {from: accs[0]});
+    await propertyOracle.AddPublicSign(ethAddr, sign, { from: cw });
 }
 module.exports.InjectPublicSign = InjectPublicSign;
 
 
-const InjectPropertyInfo = async (propertyID, ethAddr, prop) => {
-    const accs = await web3.eth.getAccounts();
+const InjectPropertyInfo = async (propertyID, ethAddr, cw, prop, artifacts) => {
+    const PropertyOracle = artifacts.require("PropertyOracle");
+    const PropertyToken = artifacts.require("PropertyToken");
+
     const propertyOracle = await PropertyOracle.deployed();
     const propertyToken = await PropertyToken.deployed(); 
 
     // Inject prop info into on-chain oracle
-    await propertyOracle.AddPropertyInfo(propertyID, prop, {from: accs[0]});
+    await propertyOracle.AddPropertyInfo(propertyID, prop, {from: cw });
     // Digitize the property (convert into NFT)
-    await propertyToken.DigitiseProperty(ethAddr, propertyID, {from: accs[0]});
+    await propertyToken.DigitiseProperty(ethAddr, propertyID, {from: cw });
 }
 module.exports.InjectPropertyInfo = InjectPropertyInfo;

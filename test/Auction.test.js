@@ -18,14 +18,26 @@ contract('PropertyToken', (accs) => {
         // 2) The system requires users to be certified to participate
         var userOne = [["John Smith","16/08/1976","John_Smith@gmail.com","0484132656","23631261"],
             ["2","4","5","31 Spooner Street","1"]];
-        await certif.ApplicationForm(seller, userOne);
-        var pId = 1; // First property is always 1, then 2,3,..,n
+        await certif.ApplicationForm(
+            seller, 
+            userOne, 
+            await certif.CreateSignature(seller, accs[0]), 
+            accs[0], 
+            artifacts
+        );
         
         var userTwo = [["Jane Doe","16/08/1979","Jane_Doe@gmail.com","0414794634","23851368"],];
-        await certif.ApplicationForm(buyer, userTwo);
+        await certif.ApplicationForm(
+            buyer, 
+            userTwo, 
+            await certif.CreateSignature(buyer, accs[0]), 
+            accs[0], 
+            artifacts
+        );
 
 
         // 3) Ensure that userOne owns the property NFT, and both users are certified
+        var pId = 1; // First property is always 1, then 2,3,..,n
         var oldOwner = await propertyToken.ownerOf(1, {from: seller});
         var acc1Sig = await propertyOracle.GetPublicSign(seller, {from: seller});
         var acc1Prop = await propertyOracle.GetPropertyInfo(pId, {from: seller});
@@ -33,8 +45,8 @@ contract('PropertyToken', (accs) => {
 
         assert(oldOwner = seller);
         assert(certif.EncodePropertyInfo(userOne[1]) == acc1Prop)
-        assert(await certif.CreateSignature(seller) == acc1Sig);
-        assert(await certif.CreateSignature(buyer) == acc2Sig);
+        assert(await certif.CreateSignature(seller, accs[0]) == acc1Sig);
+        assert(await certif.CreateSignature(buyer, accs[0]) == acc2Sig);
 
         
         // 4) userOne starts an auction for their property

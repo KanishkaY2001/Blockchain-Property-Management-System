@@ -69,8 +69,8 @@ module.exports = {
         "c80171d8b7303dd3cd1198f462d0d7b751e51bbb1ae2f88828174d77b55810dc",
         "59cb18ddb6e88f99609af82c1b08a0584c04856d06ef0a3f6d274abea81d8788",
         "67bb7c25da33ba04fa1e0865dcef858995576a4a09de3f05ffde5074df39df02",
-        "3a695e91c4d8249c3f65caf9633db22e56dd3b54744659ae34218d2a98e03dba"], `https://ropsten.infura.io/v3/a32067bd62574d698ba0fac2b6b05072`, 0, 5),
-      network_id: 3,       // Ropsten's id
+        "3a695e91c4d8249c3f65caf9633db22e56dd3b54744659ae34218d2a98e03dba"], `https://ropsten.infura.io/v3/d5497877f0194ea689e9df814179bd3d`, 0, 5),
+      network_id: 3,       // Ropsten's id                                                               //a32067bd62574d698ba0fac2b6b05072`
       gas: 5500000,        // Ropsten has a lower block limit than mainnet
       confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
       timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
