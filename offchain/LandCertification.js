@@ -2,7 +2,7 @@
 //=======================================//
 //          Initialize Libraries         //
 //=======================================//
-const offOracle = require('./CommonwealthOracle.js');
+const offOracle = require('./DataInjector.js');
 const backendHook = require('./OwnershipRegistry.js');
 const ethers = require('ethers');
 const accs = require("../ropsten/AccountBank").RopstenAccounts();
