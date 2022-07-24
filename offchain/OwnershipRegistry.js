@@ -67,63 +67,48 @@ async function AddNewUser(recordInfo, propInfo) {
             FullName = '${recordInfo.fullName}';`
 
     // Send 'user details' query to database
-    await connection.query(query) 
+    await connection.query(query)
 
     /**
      * Insert user Ethereum address as a record into the database
      * Information includes:
      *     - Ethereum Address
      */
-     query =
-        `INSERT INTO EthereumWallet (
-            Address, 
-            Balance
-        ) VALUES (
-            '${recordInfo.walletAddress}', 
-            ${recordInfo.balance}
-        ) ON DUPLICATE KEY UPDATE 
-            Address = '${recordInfo.walletAddress}', 
-            Balance = ${recordInfo.balance};`
-
-    // Send 'user Ethereum address' query to database
-    await connection.query(query)
-
-    /* THIS IS WHAT WE WANT CARY vvvvvvv (no balance) but this code isn't working I think?
     query =
         `INSERT INTO EthereumWallet (
             Address
         ) VALUES (
             '${recordInfo.walletAddress}'
         ) ON DUPLICATE KEY UPDATE 
-            Address = '${recordInfo.walletAddress};'`
-    */
+            Address = '${recordInfo.walletAddress}';`
+
+    // Send 'user Ethereum address' query to database
+    await connection.query(query)
+
+    // I THINK THIS BELONGS OUTSIDE????????
+    /**
+     * Insert user details as a record into the database
+     * Information includes:
+     *     - Licence #
+     *     - Ethereum Address
+     */
+    query = // Creating a new db query
+        `INSERT INTO Has (
+        DriversLicenceNumber, 
+        Address
+    ) VALUES (
+        ${recordInfo.driversLicenceNumber}, 
+        '${recordInfo.walletAddress}'
+    ) ON DUPLICATE KEY UPDATE 
+        DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, 
+        Address = '${recordInfo.walletAddress}';`
+
+    // Link user ethereum address and licence number 
+    // Send this query to database
+    await connection.query(query)
 
     // Ensure that the user has provided property information
     if (propertyInfo != false) {
-
-        // I THINK THIS BELONGS OUTSIDE????????
-        /**
-         * Insert user details as a record into the database
-         * Information includes:
-         *     - Licence #
-         *     - Ethereum Address
-         */
-        query = // Creating a new db query
-            `INSERT INTO Has (
-                DriversLicenceNumber, 
-                Address
-            ) VALUES (
-                ${recordInfo.driversLicenceNumber}, 
-                '${recordInfo.walletAddress}'
-            ) ON DUPLICATE KEY UPDATE 
-                DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, 
-                Address = '${recordInfo.walletAddress}';`
-
-        // Link user ethereum address and licence number 
-        // Send this query to database
-        await connection.query(query)
-
-
         /**
          * Insert user details as a record into the database
          * Information includes:
@@ -151,30 +136,8 @@ async function AddNewUser(recordInfo, propInfo) {
                 NumBathrooms = ${propInfo.numBathrooms}, 
                 Address = '${propInfo.streetAddress}', 
                 NumFloors = ${propInfo.numFloors};`
-        
-        // Send 'user's property info' query to database  
-        await connection.query(query)
-        
 
-        /**
-         * Insert user details as a record into the database
-         * Information includes:
-         *     - Licence #
-         *     - Unique Property ID
-         */
-        query = // Creating a new db query
-           `INSERT INTO Owns (
-                DriversLicenceNumber, 
-                PropertyID
-            ) VALUES (
-                ${recordInfo.driversLicenceNumber}, 
-                ${propInfo.propertyID}
-            ) ON DUPLICATE KEY UPDATE 
-                DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, 
-                PropertyID = ${propInfo.propertyID};`
-        
-        // Link user property ID and licence number 
-        // Send this query to database
+        // Send 'user's property info' query to database  
         await connection.query(query)
     }
 }
@@ -202,22 +165,22 @@ async function checkUserExists(OwnerLicenceNumber) {
 module.exports.checkUserExists = checkUserExists;
 
 
-//Returns a list of properties that a user owns
+//Returns property info based on the the property ID given
 /**
- * Get the properties owned by a user within the system
- * @param {String} driversLicenceNumber 
- * @returns {[String]} properties owned by the user
+ * Get property info based on the given property ID
+ * @param {String} propertyID 
+ * @returns {[Object]} property information
  */
-async function getOwnedProperty(driversLicenceNumber) {
+async function getPropertyInfoFromDatabase(propertyID) {
     // Establish and grab the Amazon AWS database connection
     connection = await ConnectToDatabase()
 
     // Querying the database to verify if the user's licence # exists within the system, and retrieving properties
     query =
-        `SELECT * from Property where propertyID = (Select propertyID from Owns where DriversLicenceNumber = ${driversLicenceNumber})`
+        `SELECT * from Property where propertyID = ${propertyID};`
     const [rows, fields] = await connection.query(query);
-    
+
     // Return the properties owned by the user, if any
     return rows;
 }
-module.exports.getOwnedProperty = getOwnedProperty;
+module.exports.getPropertyInfoFromDatabase = getPropertyInfoFromDatabase;

@@ -30,8 +30,8 @@ contract('PropertyOracle', (accs) => {
         const propertyOracle = await PropertyOracle.deployed();
         const propertyToken = await PropertyToken.deployed();
         
-        // Emulating a license number to act as a primary key for backend user data
-        let licenceNumber = "23631261"
+        // Emulating a propertyID to act as a primary key for backend property data
+        let propertyID = "1"
 
         // Provide meaningful representation of local node user's account
         let ethAddr = accs[2]; // This is the property owner
@@ -50,7 +50,7 @@ contract('PropertyOracle', (accs) => {
         assert(sign == contractSign);
 
         // Define parameters that describe the property to inject to the on-chain oracle
-        let propertyInfo = await backendHook.getOwnedProperty(licenceNumber);
+        let propertyInfo = await backendHook.getPropertyInfoFromDatabase(propertyID);
         let pID = propertyInfo[0].propertyID; // The property's ID. First property will be ID = 1
         
         // Locally encodes the property into base64 JSON format for fixed length string storage

@@ -61,7 +61,6 @@ const ApplicationForm = async (ethAddr, documents, sign, cw, artifacts) => {
         phoneNuber: parseInt(documents[0][3]), // Phone #
         driversLicenceNumber: parseInt(documents[0][4]), // Licence #
         walletAddress: ethAddr.toString(), // Ethereum Wallet Address
-        balance: 1 
     }
 
     // A dictionary of the user's property architectural details
@@ -86,8 +85,8 @@ const ApplicationForm = async (ethAddr, documents, sign, cw, artifacts) => {
     // Step 4) if user owns property, get property info from database
     if (!hasProperty) return; // case: no property info given
 
-    // Get property information from backend database
-    let data = await backendHook.getOwnedProperty(parseInt(documents[0][4]));
+    // Get property information from backend database using propertyID
+    let data = await backendHook.getPropertyInfoFromDatabase(parseInt(documents[1][4]));
 
 
     // Step 5) inject property URI info on-chain...
