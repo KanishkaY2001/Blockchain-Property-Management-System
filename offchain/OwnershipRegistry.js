@@ -74,7 +74,7 @@ async function AddNewUser(recordInfo, propInfo) {
      * Information includes:
      *     - Ethereum Address
      */
-    query = // Creating a new db query
+     query =
         `INSERT INTO EthereumWallet (
             Address, 
             Balance
@@ -82,7 +82,7 @@ async function AddNewUser(recordInfo, propInfo) {
             '${recordInfo.walletAddress}', 
             ${recordInfo.balance}
         ) ON DUPLICATE KEY UPDATE 
-            Address = '${recordInfo.walletAddress};' 
+            Address = '${recordInfo.walletAddress}', 
             Balance = ${recordInfo.balance};`
 
     // Send 'user Ethereum address' query to database
