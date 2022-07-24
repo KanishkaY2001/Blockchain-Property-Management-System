@@ -81,6 +81,7 @@ function Signature(public) {
     // The following encoded parameters represnt a message which certifies the user to participate in bidding
     const encoded = ethers.utils.solidityPack(["string", "address", "string"], 
     ["The Following Eth Address: ", public, " Is Certified To Participate."]);
+    
     // Hash the encoded message through SHA / Keccak256 algorithm
     const signedCertificateMessage = web3.utils.keccak256(encoded).toString('hex');
 

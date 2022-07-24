@@ -1,22 +1,53 @@
+//==============================================================================//
+//                   Off-chain Amazon-AWS SQL Database Querier                  //
+//==============================================================================//
+
+//=======================================//
+//    Initialize Libraries and Imports   //
+//=======================================//
+
 const mysql = require('mysql2/promise');
 const databaseData = require('./sensitive.json')
 
+
 //sets up a connection to the AWS Database using details stored in a different file
+/**
+ * Connect to the Amazon AWS database using predefined credentials
+ * @returns local AWS database hook / connection
+ */
 async function ConnectToDatabase() {
     const connection = await mysql.createConnection({
-        host: databaseData.host,
-        user: databaseData.user,
-        password: databaseData.password,
-        database: databaseData.database
+        host: databaseData.host, // connection host
+        user: databaseData.user, // user credential
+        password: databaseData.password, // password credential
+        database: databaseData.database // database access
     });
+
+    // Return the created AWS connection to be used in other functions
     return connection;
 }
 
-//Adds a new user to the database. New users might not necessarily have property they own so propInfo is an optional parameter.
-//Inserts the users identification documents in to the database and updates the details if the user already exists.
+
+/**
+ * Adds a new user to the database. Inserts user documentation into database. 
+ * Updates the details if a user already exists
+ * @param {[String]} recordInfo 
+ * @param {[String]} propInfo optional parameter if user has property
+ */
 async function AddNewUser(recordInfo, propInfo) {
+    // Establish and grab the Amazon AWS database connection
     connection = await ConnectToDatabase()
-    query =
+
+    /**
+     * Insert user details as a record into the database
+     * Information includes:
+     *     - Date of Birth
+     *     - Email
+     *     - Licence #
+     *     - Phone #
+     *     - Full name
+     */
+    query = // Creating a new db query
         `INSERT INTO CertifiedUser (
             DateOfBirth, 
             Email, 
@@ -35,9 +66,15 @@ async function AddNewUser(recordInfo, propInfo) {
             PhoneNuber = ${recordInfo.phoneNuber}, 
             FullName = '${recordInfo.fullName}';`
 
-    await connection.query(query)
+    // Send 'user details' query to database
+    await connection.query(query) 
 
-    query =
+    /**
+     * Insert user Ethereum address as a record into the database
+     * Information includes:
+     *     - Ethereum Address
+     */
+    query = // Creating a new db query
         `INSERT INTO EthereumWallet (
             Address, 
             Balance
@@ -45,14 +82,33 @@ async function AddNewUser(recordInfo, propInfo) {
             '${recordInfo.walletAddress}', 
             ${recordInfo.balance}
         ) ON DUPLICATE KEY UPDATE 
-            Address = '${recordInfo.walletAddress}', 
+            Address = '${recordInfo.walletAddress};' 
             Balance = ${recordInfo.balance};`
 
+    // Send 'user Ethereum address' query to database
     await connection.query(query)
 
-    //If the user has property they already own, add this to the database too
+    /* THIS IS WHAT WE WANT CARY vvvvvvv (no balance) but this code isn't working I think?
+    query =
+        `INSERT INTO EthereumWallet (
+            Address
+        ) VALUES (
+            '${recordInfo.walletAddress}'
+        ) ON DUPLICATE KEY UPDATE 
+            Address = '${recordInfo.walletAddress};'`
+    */
+
+    // Ensure that the user has provided property information
     if (propertyInfo != false) {
-        query =
+
+        // I THINK THIS BELONGS OUTSIDE????????
+        /**
+         * Insert user details as a record into the database
+         * Information includes:
+         *     - Licence #
+         *     - Ethereum Address
+         */
+        query = // Creating a new db query
             `INSERT INTO Has (
                 DriversLicenceNumber, 
                 Address
@@ -63,9 +119,21 @@ async function AddNewUser(recordInfo, propInfo) {
                 DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, 
                 Address = '${recordInfo.walletAddress}';`
 
+        // Link user ethereum address and licence number 
+        // Send this query to database
         await connection.query(query)
 
-        query =
+
+        /**
+         * Insert user details as a record into the database
+         * Information includes:
+         *     - # of bedrooms
+         *     - # of bathrooms
+         *     - Physical property address
+         *     - # of floors
+         *     - Unique Property ID
+         */
+        query = // Creating a new db query
             `INSERT INTO Property (
                 NumBedrooms, 
                 NumBathrooms, 
@@ -83,10 +151,18 @@ async function AddNewUser(recordInfo, propInfo) {
                 NumBathrooms = ${propInfo.numBathrooms}, 
                 Address = '${propInfo.streetAddress}', 
                 NumFloors = ${propInfo.numFloors};`
-
+        
+        // Send 'user's property info' query to database  
         await connection.query(query)
+        
 
-        query =
+        /**
+         * Insert user details as a record into the database
+         * Information includes:
+         *     - Licence #
+         *     - Unique Property ID
+         */
+        query = // Creating a new db query
            `INSERT INTO Owns (
                 DriversLicenceNumber, 
                 PropertyID
@@ -96,28 +172,52 @@ async function AddNewUser(recordInfo, propInfo) {
             ) ON DUPLICATE KEY UPDATE 
                 DriversLicenceNumber = ${recordInfo.driversLicenceNumber}, 
                 PropertyID = ${propInfo.propertyID};`
-
+        
+        // Link user property ID and licence number 
+        // Send this query to database
         await connection.query(query)
     }
 }
 module.exports.AddNewUser = AddNewUser;
 
+
 //Checks if a user exists in the database given a drivers licence
+/**
+ * Check if a user's record exists within the database
+ * @param {String} OwnerLicenceNumber 
+ * @returns {Bool} true if user exists, false otherwise
+ */
 async function checkUserExists(OwnerLicenceNumber) {
+    // Establish and grab the Amazon AWS database connection
     connection = await ConnectToDatabase()
+
+    // Querying the database to verify if the user's licence # exists within the system
     query =
         `SELECT * from CertifiedUser WHERE DriversLicenceNumber = ${OwnerLicenceNumber}`
     const [rows, fields] = await connection.query(query)
+
+    // If their record exists, return true, otherwise false
     return rows[0] != null;
 }
 module.exports.checkUserExists = checkUserExists;
 
+
 //Returns a list of properties that a user owns
+/**
+ * Get the properties owned by a user within the system
+ * @param {String} driversLicenceNumber 
+ * @returns {[String]} properties owned by the user
+ */
 async function getOwnedProperty(driversLicenceNumber) {
+    // Establish and grab the Amazon AWS database connection
     connection = await ConnectToDatabase()
+
+    // Querying the database to verify if the user's licence # exists within the system, and retrieving properties
     query =
         `SELECT * from Property where propertyID = (Select propertyID from Owns where DriversLicenceNumber = ${driversLicenceNumber})`
     const [rows, fields] = await connection.query(query);
+    
+    // Return the properties owned by the user, if any
     return rows;
 }
 module.exports.getOwnedProperty = getOwnedProperty;
