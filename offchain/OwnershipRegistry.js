@@ -69,6 +69,7 @@ async function AddNewUser(recordInfo, propInfo) {
     // Send 'user details' query to database
     await connection.query(query)
 
+
     /**
      * Insert user Ethereum address as a record into the database
      * Information includes:
@@ -85,7 +86,7 @@ async function AddNewUser(recordInfo, propInfo) {
     // Send 'user Ethereum address' query to database
     await connection.query(query)
 
-    // I THINK THIS BELONGS OUTSIDE????????
+
     /**
      * Insert user details as a record into the database
      * Information includes:
@@ -107,6 +108,7 @@ async function AddNewUser(recordInfo, propInfo) {
     // Send this query to database
     await connection.query(query)
 
+    
     // Ensure that the user has provided property information
     if (propertyInfo != false) {
         /**
