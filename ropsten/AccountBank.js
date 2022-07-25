@@ -46,3 +46,14 @@ function RopstenAccounts() {
     ]
 }
 module.exports.RopstenAccounts = RopstenAccounts;
+
+
+/**
+ * The Ropsten account key which enables testnet interactions
+ * @returns {String} Ropsten testnet API key (100k max daily calls)
+ */
+function RopstenKey() {
+    return "d5497877f0194ea689e9df814179bd3d";
+    //return "a32067bd62574d698ba0fac2b6b05072";
+}
+module.exports.RopstenKey = RopstenKey;

@@ -7,9 +7,10 @@
 //=======================================//
 
 const accs = require("./AccountBank").RopstenAccounts();
+const key = require("./AccountBank").RopstenKey();
 const Web3 = require("web3");
 var web3 = new Web3(new Web3.providers.HttpProvider(
-    'https://ropsten.infura.io/v3/d5497877f0194ea689e9df814179bd3d'
+    `https://ropsten.infura.io/v3/${key}`
 )); // Connecting to Ropsten testnet to access testnet information
 
 
