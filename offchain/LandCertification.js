@@ -133,9 +133,9 @@ module.exports.EncodePropertyInfo = EncodePropertyInfo;
  * @param {String} cw commonwealth's public address
  * @returns {String} public key signature
  */
-const CreateSignature = async (public, cw) => {
+const CreateSignature = async (public) => {
     // The Commonwealth performs this functionality locally to produce a certificate
-    // The following encoded parameters represnt a message which certifies the user to participate in bidding
+    // The following parameters represnt a message which certifies the user
     const encoded = ethers.utils.solidityPack(["string", "address", "string"], 
     ["The Following Eth Address: ", public, " Is Certified To Participate."]);
 
@@ -148,7 +148,7 @@ const CreateSignature = async (public, cw) => {
     const accs = await web3.eth.getAccounts();
     const signature = await web3.eth.sign(signedCertificateMessage, accs[0]);
     
-    // Verification information has been produced and can now be given to the investor to use as proof
+    // Verification information has been produced and can be used as proof
     return signature;
 }
 module.exports.CreateSignature = CreateSignature;

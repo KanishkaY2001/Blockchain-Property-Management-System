@@ -48,6 +48,21 @@ contract PropertyAuction {
 
 
     //===========================================================//
+    //                     Function Modifiers                    //
+    //===========================================================//
+
+
+    /// @notice Ensures that bids may only be made within the provided start and end blocks
+    /// @dev Block number is still susceptible to gaming, but much more secure than time
+    modifier canBid() {
+        // Ensure that a bid is made within the bounds of the provided auction block numbers
+        uint256 nowBlock = block.number;
+        require(nowBlock > startBlock && nowBlock < endBlock, "Cannot place bid");
+        _;
+    }
+
+
+    //===========================================================//
     //                    Contract Constructor                   //
     //===========================================================//
 
@@ -83,12 +98,8 @@ contract PropertyAuction {
     /// @notice Enables certified users to place bids to purchase the property, by providing ether
     /// @dev Any user is eligible to bid in any auction, however they must be certified
     /// @return success - Provided that execution is successful (without reverts) expect 'True'
-    function PlaceBid() external payable returns(bool success) {
+    function PlaceBid() canBid external payable returns(bool success) {
         address sender = msg.sender;
-        uint256 nowBlock = block.number;
-
-        // Ensure that a bid is made within the bounds of the provided auction block numbers
-        require(nowBlock > startBlock && nowBlock < endBlock, "Cannot place bid");
 
         // Ensure that the caller is not the owner, as the owner cannot bid on their own property
         require(sender != owner, "Owner cannot bid");

@@ -63,20 +63,21 @@ contract PropertyOracle {
 
     /// @notice Allows offchain logic to inject a user's public key signature to be stored onchain
     /// @dev May only be called by Commonwealth and multiple calls will replace existing signature
-    /// @param userAddr - This is the user's address, a required field as Commonwealth will call this function
-    /// @param signature - This represents the user's newly generated public key signature, to store
+    /// @param userAddr - This is the user's address
+    /// @param signature - User's newly generated public key signature, to store
     function AddPublicSign(address userAddr, bytes memory signature) authorized external {
         publicSign[userAddr] = signature; // sets the user's address mapping to signature
     }
 
 
-    /// @notice Allows offchain logic to inject property URI information to be stored onchain
-    /// @dev May only be called by Commonwealth and multiple calls will replace existing signature
-    /// @dev propId is incremental and, as such, this mapping will experience no unintentional assignment
-    /// @param propId - The incremental and unique property Id, used to represent the NFT's Id
-    /// @param encodedInfo - JSON property architectural info encoded using Base64 (fixed length string)
-    /// @return count - A count of the total number of properties recorded by the oracle
-    function AddPropertyInfo(uint256 propId, string memory encodedInfo) authorized external returns(uint256 count) {
+    /// @notice Allows offchain logic to inject property URI info to be stored onchain
+    /// @dev May only be called by Commonwealth, calls will replace existing signature
+    /// @dev propId is incremental and will experience no unintentional assignment
+    /// @param propId - The unique property Id, used to represent the NFT's Id
+    /// @param encodedInfo - JSON property info encoded using Base64
+    /// @return count - A count of the total recorded properties
+    function AddPropertyInfo(uint256 propId, string memory encodedInfo) 
+                             authorized external returns(uint256 count) {
         propertyInfo[propId] = encodedInfo;
         return propertyCount;
     }
