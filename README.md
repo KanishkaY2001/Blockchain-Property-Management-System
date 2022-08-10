@@ -1,5 +1,5 @@
 # COMP6452 Blockchain-Boogaloo
-Project Interactive Codebase
+A centralized, blockchain real-estate management solution that aims to provide an interactable framework between property owners and buyers.
 
 ### Install the following:
 - npm
